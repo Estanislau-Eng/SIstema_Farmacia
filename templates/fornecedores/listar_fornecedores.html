@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Fornecedores{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Gerenciar Fornecedores</h1>
+    <a href="{{ url_for('adicionar_fornecedor') }}" class="btn btn-primary mb-3">Adicionar Fornecedor</a>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Contato</th>
+                <th>Telefone</th>
+                <th>Email</th>
+                <th>Endereço</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in fornecedores %}
+            <tr>
+                <td>{{ f.id }}</td>
+                <td>{{ f.nome }}</td>
+                <td>{{ f.contato }}</td>
+                <td>{{ f.telefone }}</td>
+                <td>{{ f.email }}</td>
+                <td>{{ f.endereco }}</td>
+                <td>
+                    {% if current_user.tipo == 'Admin' %}
+                    <a href="{{ url_for('editar_fornecedor', id=f.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="{{ url_for('excluir_fornecedor', id=f.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Confirma exclusão?');">Excluir</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center">Nenhum fornecedor cadastrado.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

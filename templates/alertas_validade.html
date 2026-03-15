@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Alertas de Validade{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>Alertas de Validade de Produtos</h2>
+        <p>Como Farmacêutico, você pode verificar os produtos que estão vencidos ou próximos a vencer.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5>Produtos Vencidos</h5>
+            </div>
+            <div class="card-body">
+                {% if produtos_vencidos %}
+                <ul class="list-group">
+                    {% for produto in produtos_vencidos %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ produto.nome }}
+                        <span class="badge bg-danger rounded-pill">Vencido em {{ produto.validade.strftime('%d/%m/%Y') }} - Qtd: {{ produto.quantidade }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">Nenhum produto vencido.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5>Produtos Próximos a Vencer (30 dias)</h5>
+            </div>
+            <div class="card-body">
+                {% if produtos_proximos_vencimento %}
+                <ul class="list-group">
+                    {% for produto in produtos_proximos_vencimento %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ produto.nome }}
+                        <span class="badge bg-warning rounded-pill">Vence em {{ produto.validade.strftime('%d/%m/%Y') }} - Qtd: {{ produto.quantidade }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">Nenhum produto próximo a vencer.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

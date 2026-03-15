@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Excluir Devolução de Compra{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Confirmar Exclusão</h4>
+                </div>
+                <div class="card-body">
+                    <p>Tem certeza que deseja excluir esta devolução de compra?</p>
+                    <div class="alert alert-warning">
+                        <strong>Atenção:</strong> Esta ação irá reverter o estoque dos produtos e ajustar o saldo. Esta ação não pode ser desfeita.
+                    </div>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item"><strong>ID:</strong> {{ devolucao.id }}</li>
+                        <li class="list-group-item"><strong>Fornecedor:</strong> {{ devolucao.fornecedor.nome }}</li>
+                        <li class="list-group-item"><strong>Data:</strong> {{ devolucao.data.strftime('%d/%m/%Y %H:%M') }}</li>
+                        <li class="list-group-item"><strong>Motivo:</strong> {{ devolucao.motivo }}</li>
+                        <li class="list-group-item"><strong>Itens:</strong>
+                            <ul>
+                                {% for item in devolucao.itens %}
+                                <li>{{ item.produto.nome }} - {{ item.quantidade }} unidades</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('listar_devolucoes_compra') }}" class="btn btn-secondary">Cancelar</a>
+                        <form method="POST" action="{{ url_for('excluir_devolucao_compra', id=devolucao.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta devolução?')">Excluir</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

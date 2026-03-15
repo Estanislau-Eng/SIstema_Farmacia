@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Listar Devoluções{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Devoluções</h1>
+    <a href="{{ url_for('adicionar_devolucao') }}" class="btn btn-success mb-3">Adicionar Devolução</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Motivo</th>
+                <th>Venda Relacionada</th>
+                <th>Usuário</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for devolucao in devolucoes %}
+            <tr>
+                <td>{{ devolucao.id }}</td>
+                <td>{{ devolucao.data.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ devolucao.motivo }}</td>
+                <td>{% if devolucao.venda %}Venda #{{ devolucao.venda.id }}{% else %}N/A{% endif %}</td>
+                <td>{{ devolucao.usuario.nome }}</td>
+                <td>
+                    {% if current_user.tipo == 'Admin' %}
+                    <a href="{{ url_for('editar_devolucao', id=devolucao.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="{{ url_for('excluir_devolucao', id=devolucao.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza?')">Excluir</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

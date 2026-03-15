@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Adicionar Devolução{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">Nova Devolução</h4>
+                </div>
+                <div class="card-body">
+                    <form id="devolucaoForm" method="POST" action="{{ url_for('adicionar_devolucao') }}">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="produto" class="form-label">Produto</label>
+                                <select id="produto" class="form-select">
+                                    <option value="">Selecione um produto</option>
+                                    {% for produto in produtos %}
+                                    <option value="{{ produto.id }}">{{ produto.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="quantidade" class="form-label">Quantidade</label>
+                                <input type="number" id="quantidade" class="form-control" min="1" value="1">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="button" id="addItem" class="btn btn-primary">Adicionar Item</button>
+                            </div>
+                        </div>
+
+                        <table class="table table-striped" id="itensTable">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itensBody">
+                            </tbody>
+                        </table>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="venda_id" class="form-label">Venda Relacionada (opcional)</label>
+                                <select name="venda_id" id="venda_id" class="form-select">
+                                    <option value="">Nenhuma</option>
+                                    {% for venda in vendas %}
+                                    <option value="{{ venda.id }}">Venda #{{ venda.id }} - {{ venda.data.strftime('%d/%m/%Y') }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="motivo" class="form-label">Motivo da Devolução</label>
+                                <textarea name="motivo" id="motivo" class="form-control" rows="3" required></textarea>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="itens" id="itensInput">
+
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{{ url_for('listar_devolucoes') }}" class="btn btn-secondary">Voltar</a>
+                            <button type="submit" class="btn btn-warning">Finalizar Devolução</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let itens = [];
+
+document.getElementById('addItem').addEventListener('click', function() {
+    const produtoSelect = document.getElementById('produto');
+    const quantidadeInput = document.getElementById('quantidade');
+    const produtoId = produtoSelect.value;
+    const produtoNome = produtoSelect.options[produtoSelect.selectedIndex].text;
+    const quantidade = parseInt(quantidadeInput.value);
+
+    if (!produtoId) {
+        alert('Selecione um produto');
+        return;
+    }
+
+    itens.push({ id: produtoId, nome: produtoNome, quantidade });
+
+    updateTable();
+});
+
+function updateTable() {
+    const tbody = document.getElementById('itensBody');
+    tbody.innerHTML = '';
+    itens.forEach((item, index) => {
+        const row = `<tr>
+            <td>${item.nome}</td>
+            <td>${item.quantidade}</td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">Remover</button></td>
+        </tr>`;
+        tbody.innerHTML += row;
+    });
+}
+
+function removeItem(index) {
+    itens.splice(index, 1);
+    updateTable();
+}
+
+document.getElementById('devolucaoForm').addEventListener('submit', function(e) {
+    if (itens.length === 0) {
+        e.preventDefault();
+        alert('Adicione pelo menos um item');
+    } else {
+        document.getElementById('itensInput').value = JSON.stringify(itens);
+    }
+});
+</script>
+{% endblock %}

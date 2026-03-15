@@ -1,0 +1,484 @@
+{% extends 'base.html' %}
+{% block title %}Relatórios{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Relatório Financeiro</h1>
+        </div>
+    </div>
+
+    <!-- Filtros de Data -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="data_inicio" class="form-label">Data Início</label>
+                            <input type="date" name="data_inicio" id="data_inicio" class="form-control" value="{{ data_inicio }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="data_fim" class="form-label">Data Fim</label>
+                            <input type="date" name="data_fim" id="data_fim" class="form-control" value="{{ data_fim }}">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumo Financeiro -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <h5>Entradas (Vendas)</h5>
+                    <h3>Kz {{ "%.2f"|format(saldo_entradas) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-danger text-white">
+                <div class="card-body">
+                    <h5>Saídas (Devoluções de Vendas)</h5>
+                    <h3>Kz {{ "%.2f"|format(saldo_saidas) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-dark">
+                <div class="card-body">
+                    <h5>Sáidas (Compras de Mercadoria)</h5>
+                    <h3>Kz {{ "%.2f"|format(total_devolucoes) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center {% if saldo_liquido >= 0 %}bg-info{% else %}bg-secondary{% endif %} text-white">
+                <div class="card-body">
+                    <h5>Saldo Disponível</h5>
+                    <h3>Kz {{ "%.2f"|format(saldo_liquido) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendas (Saídas) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5>Vendas (Entradas) - Período: {{ data_inicio }} a {{ data_fim }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Usuário</th>
+                                    <th>Forma Pagamento</th>
+                                    <th>Produtos</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venda in vendas %}
+                                <tr>
+                                    <td>{{ venda.id }}</td>
+                                    <td>{{ venda.data.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ venda.data.strftime('%H:%M') }}</td>
+                                    <td>{{ venda.usuario.nome }}</td>
+                                    <td>{{ venda.forma_pagamento }}</td>
+                                    <td>
+                                        <ul class="list-unstyled mb-0">
+                                            {% for item in venda.itens %}
+                                            <li>{{ item.produto.nome }} ({{ item.quantidade }}x) - Kz {{ "%.2f"|format(item.preco_unitario) }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td><strong>Kz {{ "%.2f"|format(venda.total) }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan="6"><strong>TOTAL VENDAS</strong></td>
+                                    <td><strong>Kz {{ "%.2f"|format(total_vendas) }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalhes das Saídas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5>Detalhes das Saídas - Período: {{ data_inicio }} a {{ data_fim }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Tipo</th>
+                                    <th>Entidade</th>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
+                                    <th>Preço Unitário</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for saida in saidas_detalhes %}
+                                <tr>
+                                    <td>{{ saida.data.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ saida.data.strftime('%H:%M') }}</td>
+                                    <td>{{ saida.tipo }}</td>
+                                    <td>{{ saida.entidade }}</td>
+                                    <td>{{ saida.produto }}</td>
+                                    <td>{{ saida.quantidade }}</td>
+                                    <td>Kz {{ "%.2f"|format(saida.preco_unitario) }}</td>
+                                    <td><strong>Kz {{ "%.2f"|format(saida.subtotal) }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan="7"><strong>TOTAL SAÍDAS</strong></td>
+                                    <td><strong>Kz {{ "%.2f"|format(saldo_saidas) }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compras (Entradas) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5>Compras (Saídas) - Período: {{ data_inicio }} a {{ data_fim }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Fornecedor</th>
+                                    <th>Usuário</th>
+                                    <th>Produtos</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for compra in compras %}
+                                <tr>
+                                    <td>{{ compra.id }}</td>
+                                    <td>{{ compra.data.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ compra.data.strftime('%H:%M') }}</td>
+                                    <td>{{ compra.fornecedor.nome }}</td>
+                                    <td>{{ compra.usuario.nome }}</td>
+                                    <td>
+                                        <ul class="list-unstyled mb-0">
+                                            {% for item in compra.itens %}
+                                            <li>{{ item.produto.nome }} ({{ item.quantidade }}x) - Kz {{ "%.2f"|format(item.preco_unitario) }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td><strong>Kz {{ "%.2f"|format(compra.total) }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan="6"><strong>TOTAL COMPRAS</strong></td>
+                                    <td><strong>Kz {{ "%.2f"|format(total_compras) }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Devoluções -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5>Devoluções - Período: {{ data_inicio }} a {{ data_fim }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Motivo</th>
+                                    <th>Venda Relacionada</th>
+                                    <th>Usuário</th>
+                                    <th>Produtos Devolvidos</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for devolucao, total in devolucoes %}
+                                <tr>
+                                    <td>{{ devolucao.id }}</td>
+                                    <td>{{ devolucao.data.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ devolucao.data.strftime('%H:%M') }}</td>
+                                    <td>{{ devolucao.motivo }}</td>
+                                    <td>{% if devolucao.venda %}#{{ devolucao.venda.id }}{% else %}N/A{% endif %}</td>
+                                    <td>{{ devolucao.usuario.nome }}</td>
+                                    <td>
+                                        <ul class="list-unstyled mb-0">
+                                            {% for item in devolucao.itens %}
+                                            <li>{{ item.produto.nome }} ({{ item.quantidade }}x)</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td><strong>Kz {{ "%.2f"|format(total) }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td colspan="7"><strong>TOTAL DEVOLUÇÕES</strong></td>
+                                    <td><strong>Kz {{ "%.2f"|format(total_devolucoes) }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Histórico de Transações e Saldo -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Histórico de Transações e Saldo Disponível - Período: {{ data_inicio }} a {{ data_fim }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Tipo</th>
+                                    <th>Valor</th>
+                                    <th>Saldo Disponível Após</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transacao in transacoes %}
+                                <tr>
+                                    <td>{{ transacao.data.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ transacao.data.strftime('%H:%M') }}</td>
+                                    <td>{{ transacao.tipo }}</td>
+                                    <td><strong>Kz {{ "%.2f"|format(transacao.valor) }}</strong></td>
+                                    <td><strong>Kz {{ "%.2f"|format(transacao.saldo_acumulado) }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos (mantidos) -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Vendas por Mês (Últimos 12 meses)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="vendasMesChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Produtos Mais Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="produtosChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Vendas por Forma de Pagamento</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="pagamentoChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <button id="exportPDF" class="btn btn-primary">Exportar Relatório em PDF</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+const vendasMesData = {
+    labels: [
+        {% for venda in vendas_por_mes %}
+        '{{ venda.ano }}-{{ "%02d"|format(venda.mes) }}',
+        {% endfor %}
+    ],
+    datasets: [{
+        label: 'Vendas (R$)',
+        data: [
+            {% for venda in vendas_por_mes %}
+            {{ venda.total }},
+            {% endfor %}
+        ],
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+    }]
+};
+
+const produtosData = {
+    labels: [
+        {% for produto in produtos_mais_vendidos %}
+        '{{ produto.nome }}',
+        {% endfor %}
+    ],
+    datasets: [{
+        label: 'Quantidade Vendida',
+        data: [
+            {% for produto in produtos_mais_vendidos %}
+            {{ produto.total_vendido }},
+            {% endfor %}
+        ],
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+    }]
+};
+
+const pagamentoData = {
+    labels: [
+        {% for pagamento in vendas_por_pagamento %}
+        '{{ pagamento.forma_pagamento }}',
+        {% endfor %}
+    ],
+    datasets: [{
+        label: 'Valor Total (R$)',
+        data: [
+            {% for pagamento in vendas_por_pagamento %}
+            {{ pagamento.total }},
+            {% endfor %}
+        ],
+        backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 205, 86, 0.2)'
+        ],
+        borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)'
+        ],
+        borderWidth: 1
+    }]
+};
+
+new Chart(document.getElementById('vendasMesChart'), {
+    type: 'line',
+    data: vendasMesData,
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+new Chart(document.getElementById('produtosChart'), {
+    type: 'bar',
+    data: produtosData,
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+new Chart(document.getElementById('pagamentoChart'), {
+    type: 'pie',
+    data: pagamentoData,
+    options: {
+        responsive: true
+    }
+});
+
+document.getElementById('exportPDF').addEventListener('click', function() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.text('Relatório Financeiro - Farmácia Laumar', 20, 20);
+    doc.text(`Período: ${document.getElementById('data_inicio').value} a ${document.getElementById('data_fim').value}`, 20, 30);
+
+    // Adicionar resumo
+    doc.text(`Entradas (Vendas): Kz ${{ "%.2f"|format(saldo_entradas) }}`, 20, 50);
+    doc.text(`Saídas (Compras + Devoluções): Kz ${{ "%.2f"|format(saldo_saidas) }}`, 20, 60);
+    doc.text(`Devoluções: Kz ${{ "%.2f"|format(total_devolucoes) }}`, 20, 70);
+    doc.text(`Saldo Disponível: Kz ${{ "%.2f"|format(saldo_liquido) }}`, 20, 80);
+
+    doc.save(`relatorio_financeiro_${new Date().toISOString().split('T')[0]}.pdf`);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}Adicionar Venda{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Nova Venda</h4>
+                </div>
+                <div class="card-body">
+                    <form id="vendaForm" method="POST" action="{{ url_for('adicionar_venda') }}">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="produto" class="form-label">Produto</label>
+                                <select id="produto" class="form-select">
+                                    <option value="">Selecione um produto</option>
+                                    {% for produto in produtos %}
+                                    <option value="{{ produto.id }}" data-preco="{{ produto.preco_venda }}">{{ produto.nome }} - R$ {{ "%.2f"|format(produto.preco_venda) }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="quantidade" class="form-label">Quantidade</label>
+                                <input type="number" id="quantidade" class="form-control" min="1" value="1">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="button" id="addItem" class="btn btn-primary">Adicionar Item</button>
+                            </div>
+                        </div>
+
+                        <table class="table table-striped" id="itensTable">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
+                                    <th>Preço Unitário</th>
+                                    <th>Subtotal</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itensBody">
+                            </tbody>
+                        </table>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="forma_pagamento" class="form-label">Forma de Pagamento</label>
+                                <select name="forma_pagamento" id="forma_pagamento" class="form-select" required>
+                                    <option value="">Selecione</option>
+                                    <option value="Dinheiro à mão">Dinheiro à mão</option>
+                                    <option value="Multicaixa Express">Multicaixa Express</option>
+                                    <option value="PayPal">PayPal</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="data" class="form-label">Data</label>
+                                <input type="date" name="data" id="data" class="form-control" value="{{ (datetime.now()).strftime('%Y-%m-%d') }}" required>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <h5>Total: R$ <span id="total">0.00</span></h5>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="itens" id="itensInput">
+                        <input type="hidden" name="total" id="totalInput">
+
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{{ url_for('listar_vendas') }}" class="btn btn-secondary">Voltar</a>
+                            <button type="submit" class="btn btn-success">Finalizar Venda</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let itens = [];
+let total = 0;
+
+document.getElementById('addItem').addEventListener('click', function() {
+    const produtoSelect = document.getElementById('produto');
+    const quantidadeInput = document.getElementById('quantidade');
+    const produtoId = produtoSelect.value;
+    const produtoNome = produtoSelect.options[produtoSelect.selectedIndex].text;
+    const preco = parseFloat(produtoSelect.options[produtoSelect.selectedIndex].getAttribute('data-preco'));
+    const quantidade = parseInt(quantidadeInput.value);
+
+    if (!produtoId) {
+        alert('Selecione um produto');
+        return;
+    }
+
+    const subtotal = preco * quantidade;
+    itens.push({ id: produtoId, nome: produtoNome, quantidade, preco, subtotal });
+
+    updateTable();
+    updateTotal();
+});
+
+function updateTable() {
+    const tbody = document.getElementById('itensBody');
+    tbody.innerHTML = '';
+    itens.forEach((item, index) => {
+        const row = `<tr>
+            <td>${item.nome}</td>
+            <td>${item.quantidade}</td>
+            <td>R$ ${item.preco.toFixed(2)}</td>
+            <td>R$ ${item.subtotal.toFixed(2)}</td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">Remover</button></td>
+        </tr>`;
+        tbody.innerHTML += row;
+    });
+}
+
+function removeItem(index) {
+    itens.splice(index, 1);
+    updateTable();
+    updateTotal();
+}
+
+function updateTotal() {
+    total = itens.reduce((sum, item) => sum + item.subtotal, 0);
+    document.getElementById('total').textContent = total.toFixed(2);
+    document.getElementById('totalInput').value = total;
+    document.getElementById('itensInput').value = JSON.stringify(itens);
+}
+
+document.getElementById('vendaForm').addEventListener('submit', function(e) {
+    if (itens.length === 0) {
+        e.preventDefault();
+        alert('Adicione pelo menos um item');
+    }
+});
+</script>
+{% endblock %}

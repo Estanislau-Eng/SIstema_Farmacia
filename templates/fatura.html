@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Fatura da Venda{% endblock %}
+
+{% block content %}
+<div class="container-fluid" id="fatura" style="max-width: 600px; margin: auto; font-size: 14px;">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <!-- Cabeçalho com Logo -->
+                    <div class="text-center mb-4">
+                        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo da Farmácia" style="max-height: 80px; max-width: 200px;" class="mb-2">
+                        <h4 class="mb-1">Farmácia XYZ</h4>
+                        <p class="mb-0 small">Endereço: Rua Exemplo, 123 - Cidade, Estado</p>
+                        <p class="mb-0 small">Telefone: (11) 1234-5678 | Email: contato@farmaciaxyz.com</p>
+                    </div>
+
+                    <!-- Título da Fatura -->
+                    <div class="text-center mb-4">
+                        <h5 class="border-bottom pb-2">FATURA DE VENDA</h5>
+                    </div>
+
+                    <!-- Informações da Venda -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Número da Venda:</strong><br>
+                            {{ venda.id }}
+                        </div>
+                        <div class="col-6 text-end">
+                            <strong>Data/Hora:</strong><br>
+                            {{ venda.data.strftime('%d/%m/%Y %H:%M') }}
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <strong>Atendente:</strong><br>
+                            {{ venda.usuario.nome }}
+                        </div>
+                        <div class="col-6 text-end">
+                            <strong>Forma de Pagamento:</strong><br>
+                            {{ venda.forma_pagamento }}
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Itens -->
+                    <table class="table table-sm table-bordered mb-3">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center" style="width: 40%;">Produto</th>
+                                <th class="text-center" style="width: 15%;">Qtd</th>
+                                <th class="text-center" style="width: 20%;">Preço Unit.</th>
+                                <th class="text-center" style="width: 25%;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in venda.itens %}
+                            <tr>
+                                <td>{{ item.produto.nome }}</td>
+                                <td class="text-center">{{ item.quantidade }}</td>
+                                <td class="text-end">Kz {{ "%.2f"|format(item.preco_unitario) }}</td>
+                                <td class="text-end">Kz {{ "%.2f"|format(item.quantidade * item.preco_unitario) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end fw-bold">TOTAL:</td>
+                                <td class="text-end fw-bold">Kz {{ "%.2f"|format(venda.total) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- Rodapé -->
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <p class="mb-1 small">Obrigado pela preferência!</p>
+                        <p class="mb-0 small">Esta é uma fatura digital. Conserve para seus registros.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="row justify-content-center mt-3">
+        <div class="col-auto">
+            <button onclick="window.print()" class="btn btn-secondary btn-sm me-2">Imprimir</button>
+            <a href="{{ url_for('gerar_pdf_fatura', venda_id=venda.id) }}" class="btn btn-primary btn-sm">Exportar PDF</a>
+            <a href="{{ url_for('listar_vendas') }}" class="btn btn-success btn-sm ms-2">Voltar às Vendas</a>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #fatura, #fatura * {
+        visibility: visible;
+    }
+    #fatura {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: none;
+    }
+    .btn {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}

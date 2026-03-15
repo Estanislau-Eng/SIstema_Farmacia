@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Listar Produtos{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Produtos</h1>
+    {% if current_user.tipo == 'Admin' %}
+    <a href="{{ url_for('produtos_bp.adicionar_produto') }}" class="btn btn-success mb-3">Adicionar Produto</a>
+    {% endif %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Preço Compra</th>
+                <th>Preço Venda</th>
+                <th>Quantidade</th>
+                <th>Validade</th>
+                <th>Fornecedor</th>
+                <th>Data Compra</th>
+                {% if current_user.tipo == 'Admin' %}
+                <th>Ações</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for produto in produtos %}
+            <tr>
+                <td>{{ produto.id }}</td>
+                <td>{{ produto.nome }}</td>
+                <td>{{ produto.categoria }}</td>
+                <td>Kz {{ "%.2f"|format(produto.preco_compra) }}</td>
+                <td>Kz {{ "%.2f"|format(produto.preco_venda) }}</td>
+                <td>{{ produto.quantidade }}</td>
+                <td>{{ produto.validade.strftime('%d/%m/%Y') if produto.validade else 'N/A' }}</td>
+                <td>{{ produto.fornecedor.nome if produto.fornecedor else 'N/A' }}</td>
+                <td>{{ produto.data_compra.strftime('%d/%m/%Y') if produto.data_compra else 'N/A' }}</td>
+                {% if current_user.tipo == 'Admin' %}
+                <td>
+                    <a href="{{ url_for('produtos_bp.editar_produto', id=produto.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="{{ url_for('produtos_bp.excluir_produto', id=produto.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza?')">Excluir</a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+        .btn-edit:hover {
+            background-color: #06275c;
+        }
+
+        .btn-delete {
+            background-color: #d92c2c; /* vermelho */
+        }
+        .btn-delete:hover {
+            background-color: #a71d1d;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #0b3d91;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f2f2f2;
+        }
+
+        .top-buttons {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Produtos</h1>
+
+        <div class="top-buttons">
+            <a href="{{ url_for('produtos_bp.adicionar_produto') }}" class="btn btn-add">Adicionar Produto</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Preço Compra</th>
+                    <th>Preço Venda</th>
+                    <th>Quantidade</th>
+                    <th>Validade</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr>
+                    <td>{{ produto.id }}</td>
+                    <td>{{ produto.nome }}</td>
+                    <td>{{ produto.categoria }}</td>
+                    <td>{{ "%.2f"|format(produto.preco_compra) }}</td>
+                    <td>{{ "%.2f"|format(produto.preco_venda) }}</td>
+                    <td>{{ produto.quantidade }}</td>
+                    <td>{{ produto.validade.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('produtos_bp.editar_produto', id=produto.id) }}" class="btn btn-edit">Atualizar</a>
+                        <a href="{{ url_for('produtos_bp.excluir_produto', id=produto.id) }}" class="btn btn-delete">Eliminar</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align:center;">Nenhum produto cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

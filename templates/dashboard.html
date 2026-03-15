@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2>Bem-vindo, {{ current_user.nome }} ({{ user_tipo }})</h2>
+    <div class="row g-3">
+        <!-- Cards -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow">
+                <div class="card-body">
+                    <h5>Produtos</h5>
+                    <p class="fs-4">{{ produtos_total }}</p>
+                </div>
+            </div>
+        </div>
+        {% if user_tipo == 'Admin' %}
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow">
+                <div class="card-body">
+                    <h5>Usuários</h5>
+                    <p class="fs-4">{{ usuarios_total }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary shadow">
+                <div class="card-body">
+                    <h5>Fornecedores</h5>
+                    <p class="fs-4">{{ fornecedores_total }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow">
+                <div class="card-body">
+                    <h5>Produtos Vencendo</h5>
+                    <p class="fs-4">{{ produtos_vencendo }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow">
+                <div class="card-body">
+                    <h5>Produtos Vendidos</h5>
+                    <p class="fs-4">{{ produtos_vendidos }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger shadow">
+                <div class="card-body">
+                    <h5>Produtos Devolvidos</h5>
+                    <p class="fs-4">{{ produtos_devolvidos }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow">
+                <div class="card-body">
+                    <h5>Vendas de Hoje</h5>
+                    <p class="fs-4">{{ total_vendas_hoje }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user_tipo == 'Gestor' %}
+    <div class="row g-3 mt-4">
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">Saldo Disponível</div>
+                <div class="card-body">
+                    <h5>Kz {{ "%.2f"|format(saldo) }}</h5>
+                    <a href="{{ url_for('deposito') }}" class="btn btn-primary btn-sm">Fazer Depósito</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">Alertas de Estoque</div>
+                <div class="card-body">
+                    {% if produtos_criticos %}
+                        <h6 class="text-danger">Críticos (≤10):</h6>
+                        <ul class="list-unstyled">
+                            {% for p in produtos_criticos %}
+                            <li class="text-danger">{{ p.nome }}: {{ p.quantidade }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if produtos_poucos %}
+                        <h6 class="text-warning">Poucos (11-20):</h6>
+                        <ul class="list-unstyled">
+                            {% for p in produtos_poucos %}
+                            <li class="text-warning">{{ p.nome }}: {{ p.quantidade }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if produtos_medios %}
+                        <h6 class="text-info">Médios (21-50):</h6>
+                        <ul class="list-unstyled">
+                            {% for p in produtos_medios %}
+                            <li class="text-info">{{ p.nome }}: {{ p.quantidade }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if not produtos_criticos and not produtos_poucos and not produtos_medios %}
+                        <p class="text-success">Todos os produtos estão com estoque adequado.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Gráficos ou relatórios -->
+    <div class="row g-3 mt-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header">Vendas Hoje</div>
+                <div class="card-body">
+                    {% if vendas_hoje %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Total</th>
+                                    <th>Atendente</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venda in vendas_hoje %}
+                                <tr>
+                                    <td>{{ venda.id }}</td>
+                                    <td>Kz {{ "%.2f"|format(venda.total) }}</td>
+                                    <td>{{ venda.usuario.nome }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>Nenhuma venda hoje.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header">Compras Hoje</div>
+                <div class="card-body">
+                    {% if compras_hoje %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Total</th>
+                                    <th>Fornecedor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for compra in compras_hoje %}
+                                <tr>
+                                    <td>{{ compra.id }}</td>
+                                    <td>Kz {{ "%.2f"|format(compra.total) }}</td>
+                                    <td>{{ compra.fornecedor.nome }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>Nenhuma compra hoje.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

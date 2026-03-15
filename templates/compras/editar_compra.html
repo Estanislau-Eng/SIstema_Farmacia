@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Produto{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">Editar Produto</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('produtos_bp.editar_produto', id=produto.id) }}">
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome do Produto</label>
+                            <input type="text" id="nome" name="nome" class="form-control" value="{{ produto.nome }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="categoria" class="form-label">Categoria</label>
+                            <select name="categoria" id="categoria" class="form-select" required>
+                                <option value="">-- Selecionar Categoria --</option>
+                                <option value="Analgésicos" {% if produto.categoria == 'Analgésicos' %}selected{% endif %}>Analgésicos</option>
+                                <option value="Anti-inflamatórios" {% if produto.categoria == 'Anti-inflamatórios' %}selected{% endif %}>Anti-inflamatórios</option>
+                                <option value="Antibióticos" {% if produto.categoria == 'Antibióticos' %}selected{% endif %}>Antibióticos</option>
+                                <option value="Vitaminas e Suplementos" {% if produto.categoria == 'Vitaminas e Suplementos' %}selected{% endif %}>Vitaminas e Suplementos</option>
+                                <option value="Higiene e Beleza" {% if produto.categoria == 'Higiene e Beleza' %}selected{% endif %}>Higiene e Beleza</option>
+                                <option value="Cuidados com a Pele" {% if produto.categoria == 'Cuidados com a Pele' %}selected{% endif %}>Cuidados com a Pele</option>
+                                <option value="Saúde Feminina" {% if produto.categoria == 'Saúde Feminina' %}selected{% endif %}>Saúde Feminina</option>
+                                <option value="Saúde Masculina" {% if produto.categoria == 'Saúde Masculina' %}selected{% endif %}>Saúde Masculina</option>
+                                <option value="Bebês e Crianças" {% if produto.categoria == 'Bebês e Crianças' %}selected{% endif %}>Bebês e Crianças</option>
+                                <option value="Respiratórios" {% if produto.categoria == 'Respiratórios' %}selected{% endif %}>Respiratórios</option>
+                                <option value="Sistema Digestivo" {% if produto.categoria == 'Sistema Digestivo' %}selected{% endif %}>Sistema Digestivo</option>
+                                <option value="Cardiovascular" {% if produto.categoria == 'Cardiovascular' %}selected{% endif %}>Cardiovascular</option>
+                                <option value="Outro" {% if produto.categoria == 'Outro' %}selected{% endif %}>Outro</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="preco_compra" class="form-label">Preço de Compra (R$)</label>
+                                    <input type="number" step="0.01" name="preco_compra" id="preco_compra" class="form-control" value="{{ produto.preco_compra }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="preco_venda" class="form-label">Preço de Venda (R$)</label>
+                                    <input type="number" step="0.01" name="preco_venda" id="preco_venda" class="form-control" value="{{ produto.preco_venda }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="quantidade" class="form-label">Quantidade</label>
+                                    <input type="number" name="quantidade" id="quantidade" class="form-control" value="{{ produto.quantidade }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="validade" class="form-label">Data de Validade</label>
+                                    <input type="date" name="validade" id="validade" class="form-control" value="{{ produto.validade.strftime('%Y-%m-%d') if produto.validade else '' }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="fornecedor_id" class="form-label">Fornecedor</label>
+                                    <select name="fornecedor_id" id="fornecedor_id" class="form-select" required>
+                                        <option value="">-- Selecionar Fornecedor --</option>
+                                        {% for fornecedor in fornecedores %}
+                                        <option value="{{ fornecedor.id }}" {% if produto.fornecedor_id == fornecedor.id %}selected{% endif %}>{{ fornecedor.nome }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="data_compra" class="form-label">Data de Compra</label>
+                                    <input type="date" name="data_compra" id="data_compra" class="form-control" value="{{ produto.data_compra.strftime('%Y-%m-%d') if produto.data_compra else '' }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('produtos_bp.listar_produtos') }}" class="btn btn-secondary">Voltar</a>
+                            <button type="submit" class="btn btn-warning">Atualizar Produto</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+            margin-right: 10px;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-save {
+            background-color: #2ca5d9; /* azul celeste */
+        }
+        .btn-save:hover {
+            background-color: #1e8cc7;
+        }
+
+        .btn-back {
+            background-color: #0b3d91; /* azul escuro */
+        }
+        .btn-back:hover {
+            background-color: #06275c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Editar Produto</h1>
+        <form action="{{ url_for('produtos_bp.editar_produto', id=produto.id) }}" method="POST">
+            <label for="nome">Nome do Produto</label>
+            <input type="text" name="nome" id="nome" value="{{ produto.nome }}" required>
+
+            <label for="categoria">Categoria</label>
+            <select name="categoria" id="categoria" required>
+                <option value="">-- Selecionar --</option>
+                <option value="Analgésicos" {% if produto.categoria == 'Analgésicos' %}selected{% endif %}>Analgésicos</option>
+                <option value="Anti-inflamatórios" {% if produto.categoria == 'Anti-inflamatórios' %}selected{% endif %}>Anti-inflamatórios</option>
+                <option value="Antibióticos" {% if produto.categoria == 'Antibióticos' %}selected{% endif %}>Antibióticos</option>
+                <option value="Vitaminas e Suplementos" {% if produto.categoria == 'Vitaminas e Suplementos' %}selected{% endif %}>Vitaminas e Suplementos</option>
+                <option value="Higiene e Beleza" {% if produto.categoria == 'Higiene e Beleza' %}selected{% endif %}>Higiene e Beleza</option>
+                <option value="Cuidados com a Pele" {% if produto.categoria == 'Cuidados com a Pele' %}selected{% endif %}>Cuidados com a Pele</option>
+                <option value="Saúde Feminina" {% if produto.categoria == 'Saúde Feminina' %}selected{% endif %}>Saúde Feminina</option>
+                <option value="Saúde Masculina" {% if produto.categoria == 'Saúde Masculina' %}selected{% endif %}>Saúde Masculina</option>
+                <option value="Bebês e Crianças" {% if produto.categoria == 'Bebês e Crianças' %}selected{% endif %}>Bebês e Crianças</option>
+                <option value="Respiratórios" {% if produto.categoria == 'Respiratórios' %}selected{% endif %}>Respiratórios</option>
+                <option value="Sistema Digestivo" {% if produto.categoria == 'Sistema Digestivo' %}selected{% endif %}>Sistema Digestivo</option>
+                <option value="Cardiovascular" {% if produto.categoria == 'Cardiovascular' %}selected{% endif %}>Cardiovascular</option>
+                <option value="Outro" {% if produto.categoria == 'Outro' %}selected{% endif %}>Outro</option>
+            </select>
+
+            <label for="preco_compra">Preço de Compra</label>
+            <input type="number" step="0.01" name="preco_compra" id="preco_compra" value="{{ produto.preco_compra }}" required>
+
+            <label for="preco_venda">Preço de Venda</label>
+            <input type="number" step="0.01" name="preco_venda" id="preco_venda" value="{{ produto.preco_venda }}" required>
+
+            <label for="quantidade">Quantidade</label>
+            <input type="number" name="quantidade" id="quantidade" value="{{ produto.quantidade }}" required>
+
+            <label for="validade">Data de Validade</label>
+            <input type="date" name="validade" id="validade" value="{{ produto.validade.strftime('%Y-%m-%d') }}" required>
+
+            <button type="submit" class="btn btn-save">Atualizar Produto</button>
+            <a href="{{ url_for('produtos_bp.listar_produtos') }}" class="btn btn-back">Voltar</a>
+        </form>
+    </div>
+</body>
+</html>

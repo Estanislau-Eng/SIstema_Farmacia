@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Devoluções de Compra{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Devoluções de Compra</h2>
+        <a href="{{ url_for('adicionar_devolucao_compra') }}" class="btn btn-primary">Nova Devolução</a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Fornecedor</th>
+                        <th>Motivo</th>
+                        <th>Usuário</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for devolucao in devolucoes %}
+                    <tr>
+                        <td>{{ devolucao.id }}</td>
+                        <td>{{ devolucao.data.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ devolucao.fornecedor.nome }}</td>
+                        <td>{{ devolucao.motivo }}</td>
+                        <td>{{ devolucao.usuario.nome }}</td>
+                        <td>
+                            <a href="{{ url_for('editar_devolucao_compra', id=devolucao.id) }}" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="{{ url_for('excluir_devolucao_compra', id=devolucao.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza?')">Excluir</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

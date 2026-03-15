@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Adicionar Usuário{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Adicionar Usuário</h1>
+    <form method="POST" action="{{ url_for('adicionar_usuario') }}">
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome</label>
+            <input id="nome" name="nome" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="usuario" class="form-label">Login</label>
+            <input id="usuario" name="usuario" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="senha" class="form-label">Senha</label>
+            <input type="password" id="senha" name="senha" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="tipo" class="form-label">Tipo</label>
+            <select id="tipo" name="tipo" class="form-select" required>
+                <option value="">-- Selecionar --</option>
+                <option value="Admin">Admin</option>
+                <option value="Atendente">Atendente</option>
+                <option value="Farmaceutica">Farmacêutica</option>
+                <option value="Gestor">Gestor</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="{{ url_for('listar_usuarios') }}" class="btn btn-secondary">Voltar</a>
+    </form>
+</div>
+{% endblock %}
